@@ -1,21 +1,28 @@
-import MessageListItem from '../components/MessageListItem';
-import { useState } from 'react';
-import { Message, getMessages } from '../data/messages';
 import {
-  IonContent,
+  IonButton,
+  IonButtons,
+  IonCheckbox,
+  IonCol,
+  IonGrid,
   IonHeader,
+  IonIcon,
+  IonInput,
   IonList,
-  IonPage,
   IonRefresher,
   IonRefresherContent,
+  IonRow,
   IonTitle,
   IonToolbar,
-  useIonViewWillEnter
+  useIonViewWillEnter,
 } from '@ionic/react';
+import { search } from 'ionicons/icons';
+import { useState } from 'react';
+import MainLayout from '../components/layouts/MainLayout';
+import ListItem from '../components/ListItem';
+import { Message, getMessages } from '../data/messages';
 import './Home.css';
 
 const Home: React.FC = () => {
-
   const [messages, setMessages] = useState<Message[]>([]);
 
   useIonViewWillEnter(() => {
@@ -30,30 +37,65 @@ const Home: React.FC = () => {
   };
 
   return (
-    <IonPage id="home-page">
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Inbox</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent fullscreen>
-        <IonRefresher slot="fixed" onIonRefresh={refresh}>
-          <IonRefresherContent></IonRefresherContent>
-        </IonRefresher>
-
-        <IonHeader collapse="condense">
+    <MainLayout
+      pageId="home-page"
+      isAuth
+      header={
+        <IonHeader>
           <IonToolbar>
-            <IonTitle size="large">
-              Inbox
-            </IonTitle>
+            <IonGrid>
+              <IonRow className="ion-justify-content-start">
+                <IonCol>
+                  <IonInput
+                    label="Job Description"
+                    labelPlacement="floating"
+                    fill="outline"
+                    placeholder="Filter by title, benefits, companies, expertise"
+                  />
+                </IonCol>
+                <IonCol>
+                  <IonInput
+                    label="Location"
+                    labelPlacement="floating"
+                    fill="outline"
+                    placeholder="Filter by city, state, zip code or country"
+                  />
+                </IonCol>
+                <IonCol>
+                  <IonButtons>
+                    <IonCheckbox labelPlacement="end" style={{ paddingRight: 10}}>
+                      Full Time Only
+                    </IonCheckbox>
+                    <IonButton color={'primary'} fill='solid'>
+                      <IonIcon slot="start" icon={search}></IonIcon>
+                      Search
+                    </IonButton>
+                  </IonButtons>
+                </IonCol>
+                <IonCol>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
           </IonToolbar>
         </IonHeader>
+      }
+    >
+      <IonRefresher slot="fixed" onIonRefresh={refresh}>
+        <IonRefresherContent></IonRefresherContent>
+      </IonRefresher>
 
-        <IonList>
-          {messages.map(m => <MessageListItem key={m.id} message={m} />)}
-        </IonList>
-      </IonContent>
-    </IonPage>
+      <IonHeader collapse="condense">
+        <IonToolbar>
+          <IonTitle size="large">Inbox</IonTitle>
+        </IonToolbar>
+      </IonHeader>
+
+      <IonList>
+        {messages.map((m) => (
+          <ListItem key={m.id} message={m} />
+        ))}
+      </IonList>
+    </MainLayout>
   );
 };
 

@@ -4,8 +4,7 @@ ion-item {
 }
 
 ion-label {
-  margin-top: 12px;
-  margin-bottom: 12px;
+  margin: 12px;
 }
 
 ion-item h2 {
@@ -50,18 +49,6 @@ ion-item ion-note.md {
   margin-right: 14px;
 }
 
-.dot {
-  display: block;
-  height: 12px;
-  width: 12px;
-  border-radius: 50%;
-  align-self: start;
-  margin: 16px 10px 16px 16px;
-}
-
-.dot-unread {
-  background: var(--ion-color-primary);
-}
 
 ion-footer ion-title {
   font-size: 11px;
