@@ -1,31 +1,29 @@
 import { IonItem, IonLabel, IonNote } from '@ionic/react';
-import { Message } from '../data/messages';
+import moment from 'moment';
+import { JobData } from '../models/types/Job';
 import './ListItem.css';
 
-interface ListItemProps {
-  message: Message;
-}
-
-const ListItem: React.FC<ListItemProps> = ({ message }) => {
+const ListItem: React.FC<{
+  data: JobData;
+}> = ({ data }) => {
   return (
-    <IonItem routerLink={`/detail/${message.id}`} detail={false}>
+    <IonItem routerLink={`/detail/${data.id}`} detail={false}>
       <IonLabel className="ion-text-wrap">
         <h2>
-          {message.fromName}
-          <span className="date">
-            <IonNote>{message.date}</IonNote>
+          <span style={{ color: 'royalblue', fontWeight: 'bold' }}>
+            {data.title}
           </span>
+          <div className="date">
+            <IonNote color={'dark'}>{data.location}</IonNote>
+            <IonNote>{moment(data.created_at).fromNow()}</IonNote>
+          </div>
         </h2>
-        <h3>{message.subject}</h3>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum.
-        </p>
+        <h3 style={{ color: 'gray' }}>
+          {data.company} -{' '}
+          <span style={{ color: 'green', fontWeight: 'bold' }}>
+            {data.type}
+          </span>
+        </h3>
       </IonLabel>
     </IonItem>
   );

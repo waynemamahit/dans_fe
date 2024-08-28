@@ -1,3 +1,7 @@
 .cl-rootBox.cl-signIn-root {
   margin: auto;
 }
+
+.cl-footerAction.cl-footerAction__signIn {
+  display: none;
+}

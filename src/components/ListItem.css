@@ -31,7 +31,8 @@ ion-item p {
 }
 
 ion-item .date {
-  align-items: center;
+  align-items: end;
+  flex-direction: column;
   display: flex;
 }
 
@@ -48,7 +49,6 @@ ion-item ion-note {
 ion-item ion-note.md {
   margin-right: 14px;
 }
-
 
 ion-footer ion-title {
   font-size: 11px;

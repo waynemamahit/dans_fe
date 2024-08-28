@@ -48,3 +48,7 @@
 #view-message-page p {
   line-height: 1.4;
 }
+
+ion-item h1 {
+  color: #000631;
+}

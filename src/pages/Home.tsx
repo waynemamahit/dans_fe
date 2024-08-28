@@ -6,35 +6,42 @@ import {
   IonGrid,
   IonHeader,
   IonIcon,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   IonInput,
+  IonItem,
   IonList,
   IonRefresher,
   IonRefresherContent,
   IonRow,
   IonTitle,
   IonToolbar,
-  useIonViewWillEnter,
 } from '@ionic/react';
 import { search } from 'ionicons/icons';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import MainLayout from '../components/layouts/MainLayout';
 import ListItem from '../components/ListItem';
-import { Message, getMessages } from '../data/messages';
+import useQuery from '../hooks/useQuery';
+import { FilterForm } from '../models/FilterForm';
+import { JobData } from '../models/types/Job';
 import './Home.css';
 
 const Home: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-
-  useIonViewWillEnter(() => {
-    const msgs = getMessages();
-    setMessages(msgs);
+  const { register, setValue, handleSubmit } = useForm<FilterForm>({
+    defaultValues: new FilterForm(),
   });
+  const { data, isLoading, getData } = useQuery<JobData[]>(
+    'https://dev6.dansmultipro.com/api/recruitment/positions.json',
+  );
+  const [currentLength, setCurrentLength] = useState(data?.length ?? 0);
 
-  const refresh = (e: CustomEvent) => {
-    setTimeout(() => {
-      e.detail.complete();
-    }, 3000);
-  };
+  const onLoadData = useCallback(async () => {
+    await getData();
+    setCurrentLength(data?.length as number);
+  }, []);
+
+  const onSearch = handleSubmit((data) => console.log(data));
 
   return (
     <MainLayout
@@ -43,44 +50,64 @@ const Home: React.FC = () => {
       header={
         <IonHeader>
           <IonToolbar>
-            <IonGrid>
-              <IonRow className="ion-justify-content-start">
-                <IonCol>
-                  <IonInput
-                    label="Job Description"
-                    labelPlacement="floating"
-                    fill="outline"
-                    placeholder="Filter by title, benefits, companies, expertise"
-                  />
-                </IonCol>
-                <IonCol>
-                  <IonInput
-                    label="Location"
-                    labelPlacement="floating"
-                    fill="outline"
-                    placeholder="Filter by city, state, zip code or country"
-                  />
-                </IonCol>
-                <IonCol>
-                  <IonButtons>
-                    <IonCheckbox labelPlacement="end" style={{ paddingRight: 10}}>
-                      Full Time Only
-                    </IonCheckbox>
-                    <IonButton color={'primary'} fill='solid'>
-                      <IonIcon slot="start" icon={search}></IonIcon>
-                      Search
-                    </IonButton>
-                  </IonButtons>
-                </IonCol>
-                <IonCol>
-                </IonCol>
-              </IonRow>
-            </IonGrid>
+            <form onSubmit={onSearch}>
+              <IonGrid>
+                <IonRow className="ion-justify-content-around">
+                  <IonCol sizeLg="5" sizeMd="6" sizeSm="12" sizeXs="12">
+                    <IonInput
+                      label="Job Description"
+                      labelPlacement="floating"
+                      fill="outline"
+                      placeholder="Filter by title, benefits, companies, expertise"
+                      {...register('description')}
+                    />
+                  </IonCol>
+                  <IonCol sizeLg="4" sizeMd="6" sizeSm="12" sizeXs="12">
+                    <IonInput
+                      label="Location"
+                      labelPlacement="floating"
+                      fill="outline"
+                      placeholder="Filter by city, state, zip code or country"
+                      {...register('location')}
+                    />
+                  </IonCol>
+                  <IonCol
+                    sizeLg="3"
+                    sizeMd="12"
+                    sizeSm="12"
+                    sizeXs="12"
+                    style={{ margin: 'auto' }}
+                  >
+                    <IonButtons>
+                      <IonCheckbox
+                        labelPlacement="end"
+                        style={{ paddingRight: 10 }}
+                        onClick={(evt) =>
+                          setValue(
+                            'full_time',
+                            evt.currentTarget.ariaChecked === 'false',
+                          )
+                        }
+                      >
+                        Full Time Only
+                      </IonCheckbox>
+                      <IonButton color={'primary'} fill="solid" type="submit">
+                        <IonIcon slot="start" icon={search}></IonIcon>
+                        Search
+                      </IonButton>
+                    </IonButtons>
+                  </IonCol>
+                </IonRow>
+              </IonGrid>
+            </form>
           </IonToolbar>
         </IonHeader>
       }
     >
-      <IonRefresher slot="fixed" onIonRefresh={refresh}>
+      <IonRefresher
+        slot="fixed"
+        onIonRefresh={(e) => onLoadData().finally(() => e.detail.complete())}
+      >
         <IonRefresherContent></IonRefresherContent>
       </IonRefresher>
 
@@ -91,10 +118,27 @@ const Home: React.FC = () => {
       </IonHeader>
 
       <IonList>
-        {messages.map((m) => (
-          <ListItem key={m.id} message={m} />
-        ))}
+        <IonItem>
+          <h1 className="ion-padding" style={{ fontWeight: 'bold' }}>
+            Job List
+          </h1>
+        </IonItem>
+        {data?.map((item) => <ListItem key={item.id} data={item} />)}
       </IonList>
+      <IonInfiniteScroll
+        style={{
+          display:
+            (data?.length ?? 0) === currentLength && !isLoading
+              ? 'none'
+              : 'block',
+        }}
+        onIonInfinite={(e) => onLoadData().finally(() => e.target.complete())}
+      >
+        <IonInfiniteScrollContent
+          loadingText="Loading..."
+          loadingSpinner="bubbles"
+        ></IonInfiniteScrollContent>
+      </IonInfiniteScroll>
     </MainLayout>
   );
 };

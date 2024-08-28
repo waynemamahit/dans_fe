@@ -37,7 +37,7 @@ export default function MainLayout({
           <>
             <SignedIn>{children}</SignedIn>
             <SignedOut>
-              <Redirect to={'/auth'} />
+              <Redirect to={'/'} />
             </SignedOut>
           </>
         ) : (
