@@ -1,29 +1,31 @@
 import {
   IonBackButton,
   IonButtons,
+  IonCol,
+  IonGrid,
   IonHeader,
   IonItem,
+  IonProgressBar,
+  IonRow,
   IonToolbar,
-  useIonViewWillEnter,
 } from '@ionic/react';
-import { useState } from 'react';
 import { useParams } from 'react-router';
+import DetailCard from '../components/DetailCard';
 import MainLayout from '../components/layouts/MainLayout';
-import { Message, getMessage } from '../data/messages';
+import useQuery from '../hooks/useQuery';
+import { JobData } from '../models/types/Job';
+import { API_URL } from '../utils/constant';
 import './ViewDetail.css';
 
 function ViewDetail() {
-  const [message, setMessage] = useState<Message>();
   const params = useParams<{ id: string }>();
-
-  useIonViewWillEnter(() => {
-    const msg = getMessage(parseInt(params.id, 10));
-    setMessage(msg);
-  });
+  const { data, isLoading } = useQuery<JobData>(
+    API_URL + '/positions/' + params.id,
+  );
 
   return (
     <MainLayout
-      pageId="view-message-page"
+      pageId="view-detail-page"
       isAuth
       header={
         <IonHeader translucent>
@@ -35,24 +37,44 @@ function ViewDetail() {
         </IonHeader>
       }
     >
-      {message ? (
-        <div className="ion-padding">
-          <div>Full Time / Berlin</div>
-          <IonItem>
-            <h1>{message.subject}</h1>
-          </IonItem>
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.
-          </p>
-        </div>
+      {isLoading ? (
+        <IonProgressBar type="indeterminate"></IonProgressBar>
       ) : (
-        <div>Message not found</div>
+        <IonGrid>
+          <IonRow>
+            {data ? (
+              <>
+                <IonCol sizeLg="8" sizeMd="12" sizeSm="12" sizeXs="12">
+                  <div className="ion-padding">
+                    <div style={{ color: 'gray' }}>
+                      {data.type} / {data.location}
+                    </div>
+                    <IonItem>
+                      <h1 style={{ fontWeight: 'bolder' }}>{data.title}</h1>
+                    </IonItem>
+                    <div
+                      dangerouslySetInnerHTML={{ __html: data.description }}
+                    />
+                  </div>
+                </IonCol>
+                <IonCol sizeLg="4" sizeMd="12" sizeSm="12" sizeXs="12">
+                  <DetailCard title={data.company} url={data.company_url}>
+                    <img alt={data.company} src={data.company_logo} />
+                  </DetailCard>
+                  <DetailCard title={'How to Apply'} url={data.url}>
+                    <div
+                      dangerouslySetInnerHTML={{ __html: data.how_to_apply }}
+                    />
+                  </DetailCard>
+                </IonCol>
+              </>
+            ) : (
+              <IonCol size="12">
+                <h1 style={{ margin: 'auto' }}>Job not Found</h1>
+              </IonCol>
+            )}
+          </IonRow>
+        </IonGrid>
       )}
     </MainLayout>
   );

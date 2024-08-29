@@ -11,10 +11,10 @@ import {
   IonInput,
   IonItem,
   IonList,
+  IonProgressBar,
   IonRefresher,
   IonRefresherContent,
   IonRow,
-  IonTitle,
   IonToolbar,
 } from '@ionic/react';
 import { search } from 'ionicons/icons';
@@ -25,6 +25,7 @@ import ListItem from '../components/ListItem';
 import useQuery from '../hooks/useQuery';
 import { FilterForm } from '../models/FilterForm';
 import { JobData } from '../models/types/Job';
+import { API_URL } from '../utils/constant';
 import './Home.css';
 
 const Home: React.FC = () => {
@@ -32,7 +33,7 @@ const Home: React.FC = () => {
     defaultValues: new FilterForm(),
   });
   const { data, isLoading, getData } = useQuery<JobData[]>(
-    'https://dev6.dansmultipro.com/api/recruitment/positions.json',
+    API_URL + '/positions.json',
   );
   const [currentLength, setCurrentLength] = useState(data?.length ?? 0);
 
@@ -111,20 +112,21 @@ const Home: React.FC = () => {
         <IonRefresherContent></IonRefresherContent>
       </IonRefresher>
 
-      <IonHeader collapse="condense">
-        <IonToolbar>
-          <IonTitle size="large">Inbox</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      {isLoading ? (
+        <IonProgressBar type="indeterminate"></IonProgressBar>
+      ) : null}
 
-      <IonList>
-        <IonItem>
-          <h1 className="ion-padding" style={{ fontWeight: 'bold' }}>
-            Job List
-          </h1>
-        </IonItem>
-        {data?.map((item) => <ListItem key={item.id} data={item} />)}
-      </IonList>
+      {data ? (
+        <IonList>
+          <IonItem>
+            <h1 className="ion-padding" style={{ fontWeight: 'bold' }}>
+              Job List
+            </h1>
+          </IonItem>
+          {data?.map((item) => <ListItem key={item.id} data={item} />)}
+        </IonList>
+      ) : null}
+
       <IonInfiniteScroll
         style={{
           display:

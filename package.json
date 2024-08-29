@@ -1,5 +1,5 @@
 {
-  "name": "job-web-dansmultipro",
+  "name": "dans_fe",
   "description": "Job Web Take Home Test Project",
   "private": true,
   "version": "0.0.1",
@@ -10,9 +10,10 @@
     "preview": "vite preview",
     "test.e2e": "cypress run",
     "test.unit": "vitest",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix"
   },
   "dependencies": {
+    "@capacitor/android": "6.1.2",
     "@capacitor/app": "6.0.1",
     "@capacitor/core": "6.1.2",
     "@capacitor/haptics": "6.0.1",
