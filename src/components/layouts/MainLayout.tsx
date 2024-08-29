@@ -1,4 +1,4 @@
-import { SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
+import { UserButton } from '@clerk/clerk-react';
 import {
   IonButtons,
   IonContent,
@@ -8,18 +8,15 @@ import {
   IonToolbar,
 } from '@ionic/react';
 import { ReactNode } from 'react';
-import { Redirect } from 'react-router';
 
 export default function MainLayout({
   children,
   header,
   pageId = '',
-  isAuth = false,
 }: {
   children?: ReactNode;
   header?: ReactNode;
   pageId: string;
-  isAuth?: boolean;
 }) {
   return (
     <IonPage id={pageId}>
@@ -32,18 +29,7 @@ export default function MainLayout({
         </IonToolbar>
       </IonHeader>
       {header}
-      <IonContent fullscreen>
-        {isAuth ? (
-          <>
-            <SignedIn>{children}</SignedIn>
-            <SignedOut>
-              <Redirect to={'/'} />
-            </SignedOut>
-          </>
-        ) : (
-          children
-        )}
-      </IonContent>
+      <IonContent fullscreen>{children}</IonContent>
     </IonPage>
   );
 }

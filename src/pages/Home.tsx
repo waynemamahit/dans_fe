@@ -75,7 +75,6 @@ const Home: React.FC = () => {
   return (
     <MainLayout
       pageId="home-page"
-      isAuth
       header={
         <IonHeader>
           <IonToolbar>

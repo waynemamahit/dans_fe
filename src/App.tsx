@@ -33,10 +33,24 @@ import '@ionic/react/css/text-transformation.css';
 // import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
+import { SignedIn, SignedOut, useAuth } from '@clerk/clerk-react';
+import { FC } from 'react';
 import './theme/variables.css';
-import { useAuth } from '@clerk/clerk-react';
 
 setupIonicReact();
+
+const AuthPage = ({ Component }: { Component: FC }) => {
+  return (
+    <>
+      <SignedIn>
+        <Component />
+      </SignedIn>
+      <SignedOut>
+        <Redirect to={'/'} />
+      </SignedOut>
+    </>
+  );
+};
 
 const App: React.FC = () => {
   const { isSignedIn } = useAuth();
@@ -52,10 +66,10 @@ const App: React.FC = () => {
             <AuthSignIn />
           </Route>
           <Route path="/home" exact={true}>
-            <Home />
+            <AuthPage Component={Home} />
           </Route>
           <Route path="/detail/:id" exact={true}>
-            <ViewDetail />
+            <AuthPage Component={ViewDetail} />
           </Route>
         </IonRouterOutlet>
       </IonReactRouter>

@@ -26,7 +26,6 @@ function ViewDetail() {
   return (
     <MainLayout
       pageId="view-detail-page"
-      isAuth
       header={
         <IonHeader translucent>
           <IonToolbar>
