@@ -19,9 +19,9 @@ import './ViewDetail.css';
 
 function ViewDetail() {
   const params = useParams<{ id: string }>();
-  const { data, isLoading } = useQuery<JobData>(
-    API_URL + '/positions/' + params.id,
-  );
+  const { data, isLoading } = useQuery<JobData>({
+    url: API_URL + '/positions/' + params.id,
+  });
 
   return (
     <MainLayout

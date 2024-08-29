@@ -54,7 +54,7 @@ const App: React.FC = () => {
           <Route path="/home" exact={true}>
             <Home />
           </Route>
-          <Route path="/detail/:id">
+          <Route path="/detail/:id" exact={true}>
             <ViewDetail />
           </Route>
         </IonRouterOutlet>

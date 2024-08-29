@@ -17,8 +17,8 @@ import {
   IonRow,
   IonToolbar,
 } from '@ionic/react';
-import { search } from 'ionicons/icons';
-import { useCallback, useState } from 'react';
+import { close as closeIcon, search } from 'ionicons/icons';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import MainLayout from '../components/layouts/MainLayout';
 import ListItem from '../components/ListItem';
@@ -29,20 +29,48 @@ import { API_URL } from '../utils/constant';
 import './Home.css';
 
 const Home: React.FC = () => {
-  const { register, setValue, handleSubmit } = useForm<FilterForm>({
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    reset: resetForm,
+  } = useForm<FilterForm>({
     defaultValues: new FilterForm(),
   });
-  const { data, isLoading, getData } = useQuery<JobData[]>(
-    API_URL + '/positions.json',
-  );
-  const [currentLength, setCurrentLength] = useState(data?.length ?? 0);
+  const [queryParam, setQueryParam] = useState<
+    Partial<FilterForm> & { page?: number }
+  >({
+    page: 1,
+  });
+  const [isFiltered, setIsFiltered] = useState(false);
+  const { data, error, isLoading, getData, setData } = useQuery<JobData[]>({
+    url: API_URL + '/positions.json',
+    urlParams: queryParam,
+    canSetData: false,
+  });
 
-  const onLoadData = useCallback(async () => {
-    await getData();
-    setCurrentLength(data?.length as number);
+  const onLoadData = async (newQueryParam: object) => {
+    const newData = await getData(newQueryParam);
+    setData(newData);
+  };
+
+  const onSearch = handleSubmit(async (formData) => {
+    setIsFiltered(true);
+    onLoadData(formData);
+    setQueryParam(formData);
+  });
+
+  const onResetData = async () => {
+    const newQueryParam = { page: 1 };
+    onLoadData(newQueryParam);
+    setIsFiltered(false);
+    setQueryParam(newQueryParam);
+    resetForm();
+  };
+
+  useEffect(() => {
+    onLoadData(queryParam);
   }, []);
-
-  const onSearch = handleSubmit((data) => console.log(data));
 
   return (
     <MainLayout
@@ -63,7 +91,7 @@ const Home: React.FC = () => {
                       {...register('description')}
                     />
                   </IonCol>
-                  <IonCol sizeLg="4" sizeMd="6" sizeSm="12" sizeXs="12">
+                  <IonCol sizeLg="3" sizeMd="6" sizeSm="12" sizeXs="12">
                     <IonInput
                       label="Location"
                       labelPlacement="floating"
@@ -73,7 +101,7 @@ const Home: React.FC = () => {
                     />
                   </IonCol>
                   <IonCol
-                    sizeLg="3"
+                    sizeLg="4"
                     sizeMd="12"
                     sizeSm="12"
                     sizeXs="12"
@@ -92,10 +120,21 @@ const Home: React.FC = () => {
                       >
                         Full Time Only
                       </IonCheckbox>
-                      <IonButton color={'primary'} fill="solid" type="submit">
+                      <IonButton color="primary" fill="solid" type="submit">
                         <IonIcon slot="start" icon={search}></IonIcon>
                         Search
                       </IonButton>
+                      {isFiltered ? (
+                        <IonButton
+                          color="dark"
+                          fill="solid"
+                          type="button"
+                          onClick={onResetData}
+                        >
+                          <IonIcon slot="start" icon={closeIcon}></IonIcon>
+                          Clear
+                        </IonButton>
+                      ) : null}
                     </IonButtons>
                   </IonCol>
                 </IonRow>
@@ -107,7 +146,7 @@ const Home: React.FC = () => {
     >
       <IonRefresher
         slot="fixed"
-        onIonRefresh={(e) => onLoadData().finally(() => e.detail.complete())}
+        onIonRefresh={(e) => onResetData().finally(() => e.detail.complete())}
       >
         <IonRefresherContent></IonRefresherContent>
       </IonRefresher>
@@ -120,27 +159,49 @@ const Home: React.FC = () => {
         <IonList>
           <IonItem>
             <h1 className="ion-padding" style={{ fontWeight: 'bold' }}>
-              Job List
+              {isFiltered ? `Showing ${data.length} jobs` : 'Job List'}
             </h1>
           </IonItem>
-          {data?.map((item) => <ListItem key={item.id} data={item} />)}
+          {data
+            .filter((item) => !!item)
+            .map((item) => (
+              <ListItem key={item.id} data={item} />
+            ))}
         </IonList>
       ) : null}
 
-      <IonInfiniteScroll
-        style={{
-          display:
-            (data?.length ?? 0) === currentLength && !isLoading
-              ? 'none'
-              : 'block',
-        }}
-        onIonInfinite={(e) => onLoadData().finally(() => e.target.complete())}
-      >
-        <IonInfiniteScrollContent
-          loadingText="Loading..."
-          loadingSpinner="bubbles"
-        ></IonInfiniteScrollContent>
-      </IonInfiniteScroll>
+      {!isFiltered ? (
+        <IonInfiniteScroll
+          onIonInfinite={async (e) => {
+            if (!isFiltered) {
+              const currentPage = queryParam.page ?? 1;
+
+              if (!error && !isLoading) {
+                const newQueryParam = {
+                  page: currentPage + 1,
+                };
+                setQueryParam(newQueryParam);
+                const newData = await getData(newQueryParam);
+                setData((prevState) =>
+                  [
+                    ...new Set(
+                      [...(prevState ?? []), ...(newData ?? [])].map(
+                        (itemData) => JSON.stringify(itemData),
+                      ),
+                    ),
+                  ].map((item) => JSON.parse(item)),
+                );
+              }
+              e.target.complete();
+            }
+          }}
+        >
+          <IonInfiniteScrollContent
+            loadingText="Loading..."
+            loadingSpinner="bubbles"
+          ></IonInfiniteScrollContent>
+        </IonInfiniteScroll>
+      ) : null}
     </MainLayout>
   );
 };
