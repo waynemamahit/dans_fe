@@ -7,7 +7,12 @@ This is frontend test from Dans Multi Pro using React + Ionic
 npm install
 ```
 
-- Second, run the development server:
+- Second, run linter:
+```bash
+npm run lint
+```
+
+- Third, run the development server:
 ```bash
 npm run dev
 ```

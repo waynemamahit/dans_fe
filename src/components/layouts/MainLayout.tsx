@@ -1,6 +1,4 @@
-import { UserButton } from '@clerk/clerk-react';
 import {
-  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
@@ -23,9 +21,6 @@ export default function MainLayout({
       <IonHeader>
         <IonToolbar color={'primary'}>
           <IonTitle>Dans Multi Pro Jobs</IonTitle>
-          <IonButtons slot="end">
-            <UserButton />
-          </IonButtons>
         </IonToolbar>
       </IonHeader>
       {header}

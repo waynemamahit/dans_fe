@@ -1,7 +1,6 @@
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { Redirect, Route } from 'react-router-dom';
-import AuthSignIn from './pages/AuthSignIn';
+import { Route } from 'react-router-dom';
 import Home from './pages/Home';
 import ViewDetail from './pages/ViewDetail';
 
@@ -33,43 +32,20 @@ import '@ionic/react/css/text-transformation.css';
 // import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
-import { SignedIn, SignedOut, useAuth } from '@clerk/clerk-react';
-import { FC } from 'react';
 import './theme/variables.css';
 
 setupIonicReact();
 
-const AuthPage = ({ Component }: { Component: FC }) => {
-  return (
-    <>
-      <SignedIn>
-        <Component />
-      </SignedIn>
-      <SignedOut>
-        <Redirect to={'/'} />
-      </SignedOut>
-    </>
-  );
-};
-
 const App: React.FC = () => {
-  const { isSignedIn } = useAuth();
-
   return (
     <IonApp>
       <IonReactRouter>
         <IonRouterOutlet>
           <Route path="/" exact={true}>
-            <Redirect to={isSignedIn ? '/home' : '/auth'} />
-          </Route>
-          <Route path="/auth" exact={true}>
-            <AuthSignIn />
-          </Route>
-          <Route path="/home" exact={true}>
-            <AuthPage Component={Home} />
+            <Home />
           </Route>
           <Route path="/detail/:id" exact={true}>
-            <AuthPage Component={ViewDetail} />
+            <ViewDetail />
           </Route>
         </IonRouterOutlet>
       </IonReactRouter>
